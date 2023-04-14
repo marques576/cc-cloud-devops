@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+    webdjicontrollws:
+        #container_name: micro_web
+        build: webdjicontrollws/
+        ports:
+            - "80:80"
+        image: webdjicontrollws
+
+    sockerserver:
+        image: sockerserver
+        build: sockerserver/
+        environment:
+            - MARIADB_HOST=db
+        # env_file:
+        #     - ".env"
+        ports:
+            - "3000:3000"
+            - "8080:8080"
+
+    db:
+        image: mariadb
+        container_name: dboids_db
+        ports:
+            - "3306:3306"
+        environment:
+            MARIADB_ROOT_PASSWORD: root
+            MARIADB_ROOT_HOST: '%' # allow root login from anywhere
+            MARIADB_DATABASE: dboids
+            MARIADB_USER: dboids
+            MARIADB_PASSWORD: dboids
+        #volumes:
+            #- db_data:/var/lib/mysql
