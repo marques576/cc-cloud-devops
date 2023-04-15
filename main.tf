@@ -2,40 +2,42 @@ terraform {
   required_providers {
     vercel = {
       source = "vercel/vercel"
-      version = "~> 0.3"
+      version = "0.11.4"
     }
   }
 }
 
 provider "vercel" {
-  api_token = "YOUR_VERCEL_API_TOKEN"
+  api_token = var.vercel_api_token
 }
 
-resource "vercel_git_repository" "website" {
-  name = "my-website"
-  repo = "https://github.com/YOUR_GITHUB_USERNAME/YOUR_WEBSITE_REPO.git"
+resource "vercel_project" "example" {
+  name      = "terraform-test-project"
+  framework = "vite"
+  git_repository = {
+    type = "github"
+    repo = "marques576/cc-individualproj"
+  }
 }
 
-resource "vercel_project_environment_variable" "website" {
-  key   = "MY_ENV_VAR"
-  value = "my-value"
+data "vercel_project_directory" "example" {
+  path = "webdjicontrollws/"
 }
 
-resource "vercel_project_build_settings" "website" {
-  build_command = "npm run build"
+resource "vercel_project_domain" "example" {
+  project_id = vercel_project.example.id
+  domain     = "cloudweb.marques576.eu.org"
 }
 
-resource "vercel_project" "website" {
-  name                = "my-website"
-  git_repository_id   = vercel_git_repository.website.id
-  environment         = "production"
-  build_settings_id   = vercel_project_build_settings.website.id
-  environment_aliases = ["my-website.vercel.app"]
-  environment_variables = [
-    vercel_project_environment_variable.website.id,
-  ]
-}
+resource "vercel_deployment" "example" {
+  project_settings = {
+    build_command = "npm run build"
+    install_command = "npm install"
+    output_directory = "dist"
+   }
+  project_id  = vercel_project.example.id
+  files       = data.vercel_project_directory.example.files
+  path_prefix = "webdjicontrollws/"
+  production  = true
 
-output "website_url" {
-  value = vercel_project.website.url
 }
