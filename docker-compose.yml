@@ -18,9 +18,9 @@ services:
             - "3000:3000"
             - "8080:8080"
         depends_on:
-            #- db
-            db:
-                condition: service_healthy
+            - db
+            # db:
+            #     condition: service_healthy
 
     db:
         image: mysql:latest
@@ -33,9 +33,9 @@ services:
         volumes:
             - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
             - ./db/data:/var/lib/mysql
-        healthcheck:
-            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-            timeout: 3s
-            retries: 10
+        # healthcheck:
+        #     test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        #     timeout: 3s
+        #     retries: 10
         #volumes:
             #

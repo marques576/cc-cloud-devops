@@ -4,24 +4,6 @@ import WebSocket from 'ws';
 import { getIDfromWS, encaspulateMessageJSON, decaspulateMessageJSON } from './websocketUtils';
 import { connect } from './dbUtils';
 
-import mysql from 'mysql2';
-
-console.log("teste123" + process.env.DB_HOST)
-const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: 'dboids',
-    password: 'dboids',
-    database: 'dboids_db'
-  });
-  
-  db.connect((err) => {
-    if (err) {
-      console.error('error connecting: ' + err.stack);
-      return;
-    }
-    console.log('connected as id ' + db.threadId);
-  });
-
 const app = express();
 
 const valid_ids = ["1","2","3","100", "101", "102"];
