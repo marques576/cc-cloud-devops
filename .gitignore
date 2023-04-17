@@ -68,3 +68,4 @@ db/data/*
 *.tfstate.lock.info
 *.bak
 variables.tf
+run.sh
