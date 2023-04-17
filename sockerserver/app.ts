@@ -2,27 +2,25 @@ import express from 'express';
 import path from 'path';
 import WebSocket from 'ws';
 import { getIDfromWS, encaspulateMessageJSON, decaspulateMessageJSON } from './websocketUtils';
+import { connect } from './dbUtils';
 
+import mysql from 'mysql2';
 
-// import mysql from 'mysql';
-
-// const connection = mysql.createConnection({
-//     host: process.env.MARIADB_HOST || 'localhost',
-//     user: 'root',
-//     password: 'root',
-//     database: 'main',
-//   });
+console.log("teste123" + process.env.DB_HOST)
+const db = mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    user: 'dboids',
+    password: 'dboids',
+    database: 'dboids_db'
+  });
   
-
-// // Connect to the MySQL database
-// connection.connect((err:string) => {
-//     if (err) {
-//       console.error('Error connecting to MySQL database:', err);
-//       return;
-//     }
-//     console.log('Connected to MySQL database');
-//   });
-
+  db.connect((err) => {
+    if (err) {
+      console.error('error connecting: ' + err.stack);
+      return;
+    }
+    console.log('connected as id ' + db.threadId);
+  });
 
 const app = express();
 
@@ -63,6 +61,7 @@ const server = app.listen(8080, () => {
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
+    let db = connect();
     const userId = getIDfromWS(req);
     console.log(userId)
     if (userId && is_valid_userId(userId)) {
@@ -79,7 +78,7 @@ wss.on('connection', (ws, req) => {
         clients.delete(userId);
     });
 
-    ws.on('message', (message: string) => {
+    ws.on('message', async (message: string) => {
         console.log("%s", message);
         //CLIENT TO PLATFORM
         if (userId && is_valid_userId(userId))
@@ -98,6 +97,17 @@ wss.on('connection', (ws, req) => {
             }
             );
         }
+
+        const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        (await db).execute(
+            `INSERT INTO messages (userId, createdAt, message) VALUES (?, ?, ?)`,
+            [userId, timestamp, message]
+            ).then((result) => {
+                console.log(`Inserted message for userId=${userId}`);
+            }).catch((err) => {
+                console.error(err);
+            });
+
     });
 });
 

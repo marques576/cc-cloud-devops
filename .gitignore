@@ -61,3 +61,10 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+db/data/*
+
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+*.bak
+variables.tf
