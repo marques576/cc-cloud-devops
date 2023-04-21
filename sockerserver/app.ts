@@ -26,14 +26,14 @@ const clients = new Map<string | undefined, WebSocket>();
 const platformReseverdClients = new Set<WebSocket>();
 
 //WebServer
-app.listen(3000, () => {
-    console.log('WebAPI -> http://localhost:3000');
-});
+// app.listen(3000, () => {
+//     console.log('WebAPI -> http://localhost:3000');
+// });
 
-app.get('/', (req, res) => {
-    const clientList = Array.from(clients).map(ws => ws[0]);
-    res.json(clientList);
-});
+// app.get('/', (req, res) => {
+//     const clientList = Array.from(clients).map(ws => ws[0]);
+//     res.json(clientList);
+// });
 
 //Websocket
 const server = app.listen(8080, () => {
