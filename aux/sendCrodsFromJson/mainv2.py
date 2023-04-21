@@ -10,7 +10,7 @@ with open("movementLog_1.json", "r") as f:
 
 total_items = len(drone_data)
 
-ws = websocket.create_connection(WEBSOCKET_URL, header={"dboidsID": "0"})
+ws = websocket.create_connection(WEBSOCKET_URL, header={"dboidsid": "0"})
 
 for i, data in enumerate(drone_data):
     for j, drone in enumerate(data['drones']):
