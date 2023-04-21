@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import WebSocket from 'ws';
 import { getIDfromWS, encaspulateMessageJSON, decaspulateMessageJSON } from './websocketUtils';
-import { connect } from './dbUtils';
+//import { connect } from './dbUtils';
 
 const app = express();
 
@@ -43,7 +43,7 @@ const server = app.listen(8080, () => {
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
-    let db = connect();
+    //let db = connect();
     const userId = getIDfromWS(req);
     console.log(userId)
     if (userId && is_valid_userId(userId)) {
@@ -80,15 +80,15 @@ wss.on('connection', (ws, req) => {
             );
         }
 
-        const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        (await db).execute(
-            `INSERT INTO messages (userId, createdAt, message) VALUES (?, ?, ?)`,
-            [userId, timestamp, message]
-            ).then((result) => {
-                console.log(`Inserted message for userId=${userId}`);
-            }).catch((err) => {
-                console.error(err);
-            });
+        // const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        // (await db).execute(
+        //     `INSERT INTO messages (userId, createdAt, message) VALUES (?, ?, ?)`,
+        //     [userId, timestamp, message]
+        //     ).then((result) => {
+        //         console.log(`Inserted message for userId=${userId}`);
+        //     }).catch((err) => {
+        //         console.error(err);
+        //     });
 
     });
 });
