@@ -43,6 +43,9 @@ const server = app.listen(8080, () => {
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
+    req.rawHeaders.forEach(element => {
+        console.log(element);
+    });
     //let db = connect();
     const userId = getIDfromWS(req);
     console.log(userId)
