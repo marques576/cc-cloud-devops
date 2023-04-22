@@ -56,6 +56,7 @@ wss.on('connection', (ws, req) => {
         platformReseverdClients.add(ws);
     }
     else {
+        ws.send("DEBUG: Invalid ID" + userId);
         ws.close();
     }
 
