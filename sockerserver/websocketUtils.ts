@@ -7,9 +7,9 @@ interface WebSocketConnection {
 export function getIDfromWS(websocketConnection: WebSocketConnection): string | undefined {
     const index = websocketConnection.rawHeaders.indexOf('dboidsid');
     console.log("INDEX DO DBOIDSID--> "+ index);
-    if (index !== -1 && index < websocketConnection.rawHeaders.length - 1) {
-      return websocketConnection.rawHeaders[index + 1];
-    }
+    // if (index !== -1 && index < websocketConnection.rawHeaders.length - 1) {
+    //   return websocketConnection.rawHeaders[index + 1];
+    // }
     if (index !== -1){
       return "0";
     }
