@@ -43,7 +43,7 @@ function App() {
 
 
   useEffect(() => {
-    const newSocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL, "dboidsid");
+    const newSocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL, "dboidsID");
 
     setSocket(newSocket);
 
