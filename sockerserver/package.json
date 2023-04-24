@@ -20,6 +20,7 @@
     "ws": "^8.13.0"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/mysql": "^2.15.21",
     "@types/ws": "^8.5.4"
   }
