@@ -69,3 +69,6 @@ db/data/*
 *.bak
 variables.tf
 run.sh
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
