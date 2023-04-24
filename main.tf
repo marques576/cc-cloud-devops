@@ -12,10 +12,6 @@ terraform {
       source = "cloudflare/cloudflare"
       version = "4.4.0"
     }
-    # planetscale = {
-    #   source = "koslib/planetscale"
-    #   version = "~> 0.5"
-    # }
   }
 }
 
@@ -29,8 +25,6 @@ resource "vercel_project_environment_variable" "vite_websocket_url" {
 resource "vercel_project" "example" {
   name      = "terraform-test-project"
   framework = "vite"
-  # build_command = "npm run build"
-  # install_command = "npm install"
   output_directory = "dist"
   root_directory = "webdjicontrollws/"
   git_repository = {
@@ -50,13 +44,10 @@ resource "vercel_project_domain" "example" {
 
 resource "vercel_deployment" "example" {
   project_settings = {
-    # build_command = "npm run build"
-    # install_command = "npm install"
     output_directory = "dist"
    }
   project_id  = vercel_project.example.id
   files       = data.vercel_project_directory.example.files
-  # path_prefix = "webdjicontrollws/"
   production  = true
   environment = {
     VITE_WEBSOCKET_URL = "wss://ccserver.marques576.eu.org"
@@ -121,13 +112,7 @@ resource "cloudflare_record" "example" {
 }
 
 
-//PLANETSCALE
-
-# resource "planetscale_database" "db" {
-#   name = "cc-individualproj"
-#   organization = "tomasm576"
-  
-# }
+//NOTIFICATIONS
 
 resource "null_resource" "notify_server_build_complete" {
   provisioner "local-exec" {
