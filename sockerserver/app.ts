@@ -2,7 +2,12 @@ import express from 'express';
 import path from 'path';
 import WebSocket from 'ws';
 import { getIDfromWS, encaspulateMessageJSON, decaspulateMessageJSON } from './websocketUtils';
-//import { connect } from './dbUtils';
+import { connect } from './dbUtils';
+
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 
 const app = express();
 
@@ -38,15 +43,24 @@ const platformReseverdClients = new Set<WebSocket>();
 //Websocket
 const server = app.listen(8080, () => {
     console.log('WS -> http://localhost:8080');
+    console.log('DB URL-> '+process.env.DATABASE_URL);
 });
 
 const wss = new WebSocket.Server({ server });
 
-wss.on('connection', (ws, req) => {
+wss.on('connection', async (ws, req) => {
     req.rawHeaders.forEach(element => {
         console.log(element);
     });
-    //let db = connect();
+    let db = connect();
+    (await db).execute(`
+    CREATE TABLE IF NOT EXISTS messages (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId VARCHAR(255) NOT NULL,
+      message TEXT NOT NULL,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
     const userId = getIDfromWS(req);
     console.log(userId)
     if (userId && is_valid_userId(userId)) {
@@ -84,15 +98,15 @@ wss.on('connection', (ws, req) => {
             );
         }
 
-        // const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        // (await db).execute(
-        //     `INSERT INTO messages (userId, createdAt, message) VALUES (?, ?, ?)`,
-        //     [userId, timestamp, message]
-        //     ).then((result) => {
-        //         console.log(`Inserted message for userId=${userId}`);
-        //     }).catch((err) => {
-        //         console.error(err);
-        //     });
+        const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        (await db).execute(
+            `INSERT INTO messages (userId, createdAt, message) VALUES (?, ?, ?)`,
+            [userId, timestamp, message]
+            ).then((result) => {
+                console.log(`Inserted message for userId=${userId}`);
+            }).catch((err) => {
+                console.error(err);
+            });
 
     });
 });
