@@ -19,20 +19,9 @@ terraform {
   }
 }
 
-resource "vercel_project_environment_variable" "vite_websocket_url" {
-  project_id = vercel_project.example.id
-  key = "VITE_WEBSOCKET_URL"
-  value = "wss://ccserver.marques576.eu.org"
-  target = ["production","preview","development"]
-}
-
 resource "vercel_project" "example" {
   name      = "terraform-test-project"
   framework = "vite"
-  # build_command = "npm run build"
-  # install_command = "npm install"
-  output_directory = "dist"
-  root_directory = "webdjicontrollws/"
   git_repository = {
     type = "github"
     repo = var.git_repository
@@ -50,13 +39,13 @@ resource "vercel_project_domain" "example" {
 
 resource "vercel_deployment" "example" {
   project_settings = {
-    # build_command = "npm run build"
-    # install_command = "npm install"
+    build_command = "npm run build"
+    install_command = "npm install"
     output_directory = "dist"
    }
   project_id  = vercel_project.example.id
   files       = data.vercel_project_directory.example.files
-  # path_prefix = "webdjicontrollws/"
+  path_prefix = "webdjicontrollws/"
   production  = true
   environment = {
     VITE_WEBSOCKET_URL = "wss://ccserver.marques576.eu.org"
@@ -73,18 +62,6 @@ resource "digitalocean_app" "default" {
     domain {
       name = "ccserver.marques576.eu.org"
     }
-
-
-    service {
-      name = "socketserver"
-      dockerfile_path = "sockerserver/Dockerfile"
-      github {
-        repo = var.git_repository
-        branch = "main"
-        deploy_on_push = true
-      }
-      source_dir = "sockerserver/"
-      http_port = 8080
 
     env {
       key = "DATABASE_URL"
@@ -106,6 +83,19 @@ resource "digitalocean_app" "default" {
       key = "DATABASE_NAME"
       value = digitalocean_database_cluster.mysql-example.database
     }
+
+    service {
+      name = "socketserver"
+      dockerfile_path = "sockerserver/Dockerfile"
+      github {
+        repo = var.git_repository
+        branch = "main"
+        deploy_on_push = true
+      }
+      source_dir = "sockerserver/"
+      http_port = 8080
+
+
     }
   }
 
@@ -147,27 +137,9 @@ resource "null_resource" "notify_web_build_complete" {
   ]
 }
 
-resource "null_resource" "notify_database_build_complete" {
-  provisioner "local-exec" {
-    command = "curl -X POST -H 'Content-Type: application/json' -d '{ \"username\":\"Terraform\", \"content\": \"Database is online! on ${digitalocean_database_cluster.mysql-example.host} :white_check_mark:\" }' ${var.webhook_url}"
-  }
-  depends_on = [
-    digitalocean_database_cluster.mysql-example,
-  ]
-}
-
-# resource "null_resource" "notify_cloudflare_build_complete" {
-#   provisioner "local-exec" {
-#     command = "curl -X POST -H 'Content-Type: application/json' -d '{ \"username\":\"Terraform\", \"content\": \"Domain sucessfully updated on cloudflare with no errors! :white_check_mark:\" }' ${var.webhook_url}"
-#   }
-#   depends_on = [
-#     cloudflare_record.example,
-#   ]
-# }
-
 resource "digitalocean_database_cluster" "mysql-example" {
   name       = "example-mysql-cluster"
-  //project_id = digitalocean_app.default.id
+  project_id = digitalocean_app.default.id
   engine     = "mysql"
   version    = "8"
   size       = "db-s-1vcpu-1gb"

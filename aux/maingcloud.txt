@@ -1,0 +1,157 @@
+terraform {
+  required_providers {
+    vercel = {
+      source = "vercel/vercel"
+      version = "0.11.4"
+    }
+     google = {
+      source = "hashicorp/google"
+      version = "4.61.0"
+    }
+  }
+}
+
+
+resource "vercel_project" "example" {
+  name      = "terraform-test-project"
+  framework = "vite"
+  git_repository = {
+    type = "github"
+    repo = "marques576/cc-individualproj"
+  }
+}
+
+data "vercel_project_directory" "example" {
+  path = "webdjicontrollws/"
+}
+
+resource "vercel_project_domain" "example" {
+  project_id = vercel_project.example.id
+  domain     = "cloudweb.marques576.eu.org"
+}
+
+resource "vercel_deployment" "example" {
+  project_settings = {
+    build_command = "npm run build"
+    install_command = "npm install"
+    output_directory = "dist"
+   }
+  project_id  = vercel_project.example.id
+  files       = data.vercel_project_directory.example.files
+  path_prefix = "webdjicontrollws/"
+  production  = true
+
+}
+
+/////////GOOGLECLOUD BUILD REPO
+
+// Create a secret containing the personal access token and grant permissions to the Service Agent 
+resource "google_secret_manager_secret" "github_token_secret" {
+    project =  "cloudcomputing-indivproj"
+    secret_id = "github_token_terraform" //o mário disse para colocar isto antes tinha github secret
+    replication {
+        automatic = true
+    }
+}
+
+resource "google_secret_manager_secret_version" "github_token_secret_version" {
+    secret = google_secret_manager_secret.github_token_secret.id
+    secret_data = "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"
+}
+
+resource "google_cloudbuildv2_connection" "my-connection" {
+  provider = google-beta
+  location = "us-central1"
+  name = "my-connection"
+
+  github_config {
+    app_installation_id = 35068862
+    authorizer_credential {
+      //oauth_token_secret_version = "projects/my-project/secrets/github-pat-secret/versions/latest"
+      oauth_token_secret_version = google_secret_manager_secret_version.github_token_secret_version.id
+    }
+  }
+}
+
+resource "google_cloudbuildv2_repository" "my-repository" {
+  provider = google-beta
+  name = "cc-individualproj"
+  parent_connection = google_cloudbuildv2_connection.my-connection.id
+  remote_uri = "https://github.com/marques576/cc-individualproj.git"
+}
+
+resource "google_cloudbuild_trigger" "repo-trigger" {
+  provider = google-beta
+  location = "us-central1"
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.my-repository.id
+    push {
+      branch = "main"//
+    }
+  }
+
+  build {
+    step {
+      dir = "sockerserver"
+      name = "gcr.io/cloud-builders/docker"
+      args = ["build", "-t", "gcr.io/cloudcomputing-indivproj/terraform-test-project", "."]
+    }
+    step {
+      dir = "sockerserver"
+      name = "gcr.io/cloud-builders/docker"
+      args = ["push", "gcr.io/cloudcomputing-indivproj/terraform-test-project"]
+    }
+      step {
+    name = "gcr.io/cloud-builders/gcloud"
+    args = [
+      "run",
+      "deploy",
+      "my-service",
+      "--image=gcr.io/cloudcomputing-indivproj/terraform-test-project",
+      "--region=us-central1",
+      "--platform=managed",
+      "--allow-unauthenticated",
+      "--port=8080",
+    ]
+  }
+    images = ["gcr.io/cloudcomputing-indivproj/terraform-test-project"]
+
+  }
+}
+
+# resource "google_compute_network" "vpc_network" {
+#   name = "terraform-network"
+# }
+
+# resource "google_cloud_run_v2_service" "default" {
+#   name     = "cloudrun-service2"
+#   location = "us-central1"
+#   ingress  = "INGRESS_TRAFFIC_ALL"
+  
+#   template {
+#     containers {
+#       image = "gcr.io/cloudcomputing-indivproj/terraform-test-project:latest"
+#       ports {
+#         container_port = 8080
+#       }
+#     }
+#   }
+# }
+
+# data "google_iam_policy" "admin" {
+#   binding {
+#     role = "roles/run.invoker"
+#     members = [
+#       "allUsers",
+#     ]
+#   }
+# }
+
+# resource "google_cloud_run_v2_service_iam_policy" "policy" {
+#   project = google_cloud_run_v2_service.default.project
+#   location = google_cloud_run_v2_service.default.location
+#   name = google_cloud_run_v2_service.default.name
+#   policy_data = data.google_iam_policy.admin.policy_data
+# }
+
