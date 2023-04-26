@@ -3,8 +3,8 @@ import websocket
 import time
 
 # Define the WebSocket server URL
-WEBSOCKET_URL = "ws://127.0.0.1:8080"
-#WEBSOCKET_URL = "wss://ccserver.marques576.eu.org"
+#WEBSOCKET_URL = "ws://127.0.0.1:8080"
+WEBSOCKET_URL = "wss://ccserver.marques576.eu.org"
 
 with open("movementLog_1.json", "r") as f:
     drone_data = json.load(f)
