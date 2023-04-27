@@ -1,5 +1,46 @@
 variable "vercel_api_token" {
   type = string
   description = "Vercel API token"
-  default = "YOUR VERCEL API KEY"
+  default = "VERCEL API TOKEN"
+}
+
+variable "digitalocean_api_token" {
+  type = string
+  description = "DigitalOcean API token"
+  default = "DIGITAL OCEAN TOKEN"
+}
+
+variable "cloudflare_api_token" {
+  type = string
+  description = "Cloudflare API token"
+  default = "CLOUDFLARE API"
+}
+
+locals {
+  url_without_protocol = replace(digitalocean_app.default.default_ingress, "https://", "")
+}
+
+locals {
+  url_without_protocol_with_dot = format("%s.", local.url_without_protocol)
+}
+
+# variable "digitalocean_live_url_without_protocol" {
+#   type = string
+#   description = "url without protocol"
+#   default = local.url_without_protocol
+# }
+
+variable "git_repository" {
+  type    = string
+  default = "GIT REPO"
+}
+
+variable "webhook_url" {
+  type = string
+  default = "DISCORD WEBHOOK URL"
+}
+
+variable "google_maps_api_key" {
+  type = string
+  default = "GOOGLE MAPS API KEY"
 }
