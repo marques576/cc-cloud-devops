@@ -6,6 +6,8 @@ services:
         ports:
             - "80:80"
         image: webdjicontrollws
+        env_file:
+            - "webdjicontrollws/.env"
 
     sockerserver:
         image: sockerserver
@@ -22,9 +24,9 @@ services:
             - "3000:3000"
             - "8080:8080"
         depends_on:
-            - db
-            # db:
-            #     condition: service_healthy
+            #- db
+            db:
+                condition: service_healthy
 
     db:
         image: mysql:latest
@@ -35,12 +37,10 @@ services:
             MYSQL_DATABASE: dboids_db
         ports:
           - "3306:3306"
+        #Para persistir info é só decomentar a linha abaixo
         #volumes:
-        #  - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
         #  - ./db/data:/var/lib/mysql
-        # healthcheck:
-        #     test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-        #     timeout: 3s
-        #     retries: 10
-        #volumes:
-            #
+        healthcheck:
+            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+            timeout: 5s
+            retries: 10

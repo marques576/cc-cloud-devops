@@ -22,6 +22,13 @@ resource "vercel_project_environment_variable" "vite_websocket_url" {
   target = ["production","preview","development"]
 }
 
+resource "vercel_project_environment_variable" "vite_google_maps_api_key_env" {
+  project_id = vercel_project.example.id
+  key = "VITE_GOOGLE_MAPS_API_KEY"
+  value = var.google_maps_api_key
+  target = ["production","preview","development"]
+}
+
 resource "vercel_project" "example" {
   name      = "terraform-test-project"
   framework = "vite"
@@ -51,6 +58,7 @@ resource "vercel_deployment" "example" {
   production  = true
   environment = {
     VITE_WEBSOCKET_URL = "wss://ccserver.marques576.eu.org"
+    VITE_GOOGLE_MAPS_API_KEY = var.google_maps_api_key
   }
 
 }
