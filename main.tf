@@ -18,7 +18,7 @@ terraform {
 resource "vercel_project_environment_variable" "vite_websocket_url" {
   project_id = vercel_project.example.id
   key = "VITE_WEBSOCKET_URL"
-  value = "wss://ccserver.marques576.eu.org"
+  value = "wss://${local.url_without_protocol}"
   target = ["production","preview","development"]
 }
 
@@ -57,7 +57,7 @@ resource "vercel_deployment" "example" {
   files       = data.vercel_project_directory.example.files
   production  = true
   environment = {
-    VITE_WEBSOCKET_URL = "wss://ccserver.marques576.eu.org"
+    VITE_WEBSOCKET_URL = "wss://${local.url_without_protocol}"
     VITE_GOOGLE_MAPS_API_KEY = var.google_maps_api_key
   }
 
@@ -70,9 +70,8 @@ resource "digitalocean_app" "default" {
     region ="ams"
 
     domain {
-      name = "ccserver.marques576.eu.org"
+      name = var.backend_domain
     }
-
 
     service {
       name = "socketserver"
@@ -157,7 +156,7 @@ resource "null_resource" "notify_database_build_complete" {
 #     cloudflare_record.example,
 #   ]
 # }
-
+//DATABASE
 resource "digitalocean_database_cluster" "mysql-example" {
   name       = "example-mysql-cluster"
   //project_id = digitalocean_app.default.id
